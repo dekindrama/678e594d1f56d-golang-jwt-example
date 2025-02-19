@@ -8,6 +8,7 @@ import (
 	"github.com/dekindrama/678e594d1f56d-golang-jwt-example/helpers/jwthelper"
 	"github.com/dekindrama/678e594d1f56d-golang-jwt-example/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func getUserByUsername(u string) (*models.User, error) {
@@ -75,5 +76,27 @@ func Login(c *fiber.Ctx) error {
 		"status":  "success",
 		"message": "success to login",
 		"token":   token,
+	})
+}
+
+func GetLoggedUser(c *fiber.Ctx) error {
+	//* extract claims/token datas
+	claims := c.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+
+	//* get user by username
+	username := claims["username"].(string)
+	user, err := getUserByUsername(username)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"status":  "error",
+			"message": "user not found",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "success get logged user",
+		"data":    user,
 	})
 }

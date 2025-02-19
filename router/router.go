@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/dekindrama/678e594d1f56d-golang-jwt-example/handlers"
+	"github.com/dekindrama/678e594d1f56d-golang-jwt-example/middlewares"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,11 +17,6 @@ func SetupRouter(app *fiber.App) {
 
 	app.Post("/login", handlers.Login)
 
-	protected := app.Group("/protected")
-	protected.Get("/data", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"status":  "success",
-			"message": "this is protected data",
-		})
-	})
+	protectedRoute := app.Group("/protected")
+	protectedRoute.Get("get-logged-user", middlewares.IsAuth(), handlers.GetLoggedUser)
 }
